@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/main.css">
+    <script src="javascript/main.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="navbar">
+        <a href="#" id="loginBtn">Connexion</a>
+        <a href="#" id="createAccountBtn">Créer un compte</a>
+        <a href="#" id="modeToggle"><i class="fas fa-sun"></i></a>
+    </div>
+    <div id="modal" class="modal">
+        <h2>Connexion</h2>
+        <form id="loginForm">
+            <input type="text" id="loginEmail" name="email" placeholder="Nom d'utilisateur" required>
+            <input type="password" id="loginPassword" name="password" placeholder="Mot de passe" required>
+            <button type="submit" id="loginSubmit">Se connecter</button>
+        </form>
+    </div>
+    <div id="createAccountModal" class="modal">
+        <h2>Créer un compte</h2>
+        <form id="createAccountForm">
+            <input type="email" id="emailInput" name="email" placeholder="Adresse e-mail" required>
+            <input type="password" id="passwordInput" name="password" placeholder="Mot de passe" required>
+            <button type="submit">Créer le compte</button>
+        </form>
+    </div>
+</body>
+</html>
