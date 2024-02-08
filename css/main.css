@@ -3,15 +3,10 @@ body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  background-color: white;
-}
-
-body.dark-mode {
-  background-color: black;
 }
 
 .navbar {
-  background-color: #333;
+  background-color: black;
   overflow: hidden;
   display: flex;
   justify-content: center;
@@ -36,26 +31,159 @@ body.dark-mode {
   margin-right: 20px;
 }
 
-.navbar #modeToggle .fa-moon {
-  display: none;
-}
-
-.navbar.dark-mode #modeToggle .fa-sun {
-  display: none;
-}
-
-.navbar.dark-mode #modeToggle .fa-moon {
-  display: inline;
-}
-
 .modal {
   display: none;
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color: white;
+  background-color: #333;
   padding: 20px;
   border-radius: 5px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  color: white;
+}
+
+.dark-mode .modal {
+  background-color: white;
+  color: black;
+}
+
+.dark-mode .fas.fa-sun {
+  display: none;
+}
+
+.dark-mode .fas.fa-moon {
+  display: inline;
+}
+
+.dark-mode .navbar {
+  background-color: #222; /* Changed color to a darker shade */
+}
+
+/* Added styling for navbar in dark mode */
+.dark-mode .navbar a {
+  color: #ddd; /* Adjusted text color for better visibility */
+}
+
+/* Adjusted hover and active colors for links in dark mode */
+.dark-mode .navbar a:hover {
+  background-color: #555;
+  color: white;
+}
+
+.dark-mode .navbar #modeToggle {
+  margin-right: 20px;
+}
+
+/* Style de base pour le formulaire */
+#loginForm {
+  width: 300px;
+  margin: 0 auto;
+}
+
+/* Style pour les champs de saisie */
+#loginEmail,
+#loginPassword {
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Style pour le bouton de soumission */
+#loginSubmit {
+  width: 100%;
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Changement de style au survol du bouton */
+#loginSubmit:hover {
+  background-color: #45a049;
+}
+
+/* Changement de style lors du clic sur le bouton */
+#loginSubmit:active {
+  background-color: #3e8e41;
+}
+
+/* Style pour le placeholder */
+::-webkit-input-placeholder {
+  color: #bbb;
+}
+
+:-moz-placeholder {
+  color: #bbb;
+}
+
+::-moz-placeholder {
+  color: #bbb;
+}
+
+:-ms-input-placeholder {
+  color: #bbb;
+}
+
+.modal-content {
+  background-color: #fefefe; /* Fond blanc */
+  margin: 5% auto; /* Centre la modal verticalement et horizontalement */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%; /* Largeur de la modal */
+}
+
+/* Style pour le titre de la modal */
+.modal h2 {
+  margin-top: 0; /* Supprime la marge par défaut */
+}
+
+/* Style pour le formulaire de création de compte */
+#createAccountForm {
+  margin-top: 20px; /* Espace au-dessus du formulaire */
+}
+
+/* Style pour les champs de saisie */
+#emailInput,
+#passwordInput {
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Style pour le bouton de soumission */
+#createAccountForm button {
+  width: 100%;
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Changement de style au survol du bouton */
+#createAccountForm button:hover {
+  background-color: #45a049;
+}
+
+/* Changement de style lors du clic sur le bouton */
+#createAccountForm button:active {
+  background-color: #3e8e41;
+}
+
+/* Style pour le placeholder */
+#createAccountForm input::placeholder {
+  color: #bbb;
 }

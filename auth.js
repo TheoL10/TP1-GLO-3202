@@ -2,15 +2,20 @@ const express = require("express");
 const fs = require("fs");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
+const cookieParser = require("cookie-parser");
+const uuid = require('uuid');
 
 const app = express();
 const port = 3000;
 
 app.use(express.json());
-app.use(
-  cors({
-    origin: "http://localhost:5500",
-  })
+app.use(cookieParser());
+app.use(cors(
+  {
+    origin: true,
+    credentials: true
+  }
+)
 );
 
 const saltRounds = 10;
@@ -53,7 +58,7 @@ app.post("/register", (req, res) => {
 
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
-
+  
   fs.readFile("database.json", "utf8", (err, data) => {
     if (err) {
       console.error(err);
@@ -67,8 +72,9 @@ app.post("/login", (req, res) => {
       console.error(parseError);
       return res.status(500).send("Internal Server Error");
     }
-
+    
     const user = database.find((user) => user.email === email);
+    const randomValue = uuid.v4();
 
     if (user) {
       bcrypt.compare(password, user.password, (err, result) => {
@@ -77,7 +83,8 @@ app.post("/login", (req, res) => {
           return res.status(500).send("Internal Server Error");
         }
         if (result) {
-          res.status(200).send("Authorized");
+          res.cookie('userCookie', randomValue, { maxAge: 900000, httpOnly: true });
+          res.status(200).send("OK");
         } else {
           res.status(401).send("Unauthorized");
         }
@@ -86,6 +93,15 @@ app.post("/login", (req, res) => {
       res.status(401).send("Unauthorized");
     }
   });
+});
+
+app.get("/logout", (req, res) => {
+  if ('userCookie' in req.cookies) {
+      res.clearCookie('userCookie');
+      res.status(200).send('Déconnexion réussie');
+  } else {
+      res.status(401).send('Non autorisé');
+  }
 });
 
 app.listen(port, () => {

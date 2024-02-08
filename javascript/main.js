@@ -1,8 +1,13 @@
 document.addEventListener("DOMContentLoaded", function () {
-  var isLoggedIn = false;
+  var loginBtn = document.getElementById("loginBtn");
+  var createAccountBtn = document.getElementById("createAccountBtn");
+  var modal = document.getElementById("modal");
+  var createAccountModal = document.getElementById("createAccountModal");
+  var loginForm = document.getElementById("loginForm");
+  var createAccountForm = document.getElementById("createAccountForm");
   var modeToggle = document.getElementById("modeToggle");
   var darkModeEnabled = false;
-
+  
   if (localStorage.getItem("darkModeEnabled") === "true") {
     enableDarkMode();
   }
@@ -16,31 +21,45 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     localStorage.setItem("darkModeEnabled", darkModeEnabled.toString());
   });
-
+  
   function enableDarkMode() {
+    darkModeEnabled = true;
     var icon = modeToggle.querySelector("i");
     icon.classList.remove("fa-sun");
     icon.classList.add("fa-moon");
-    var navbar = document.querySelector(".navbar");
-    navbar.classList.add("dark-mode");
+    document.body.classList.add("dark-mode");
   }
-
+  
   function enableLightMode() {
+    darkModeEnabled = false;
     var icon = modeToggle.querySelector("i");
     icon.classList.remove("fa-moon");
     icon.classList.add("fa-sun");
-    var navbar = document.querySelector(".navbar");
-    navbar.classList.remove("dark-mode");
+    document.body.classList.remove("dark-mode");
   }
-});
 
-document.addEventListener("DOMContentLoaded", function () {
-  var loginBtn = document.getElementById("loginBtn");
-  var createAccountBtn = document.getElementById("createAccountBtn");
-  var modal = document.getElementById("modal");
-  var createAccountModal = document.getElementById("createAccountModal");
-  var loginForm = document.getElementById("loginForm");
-  var createAccountForm = document.getElementById("createAccountForm");
+  loginBtn.addEventListener("click", function () {
+    if (localStorage.getItem("isLoggedIn") === "true") {
+      fetch("http://localhost:3000/logout", {
+        credentials: "include",
+        method: "GET",
+      })
+        .then(function (response) {
+          if (response.ok) {
+            localStorage.setItem("isLoggedIn", "false");
+            updateLoginButton();
+          } else {
+            alert("Échec de la déconnexion");
+          }
+        })
+        .catch(function (error) {
+          console.error("Error:", error);
+          alert("Une erreur s'est produite lors de la déconnexion");
+        });
+    } else {
+      modal.style.display = "block";
+    }
+  });
 
   if (localStorage.getItem("isLoggedIn") === null) {
     localStorage.setItem("isLoggedIn", "false");
@@ -97,6 +116,8 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     fetch("http://localhost:3000/login", {
+      mode: "cors",
+      credentials: "include",
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -105,9 +126,12 @@ document.addEventListener("DOMContentLoaded", function () {
     })
       .then(function (response) {
         if (response.ok) {
+          alert("Connexion réussie");
           localStorage.setItem("isLoggedIn", "true");
           updateLoginButton();
           modal.style.display = "none";
+          document.getElementById("loginEmail").value = "";
+          document.getElementById("loginPassword").value = "";
         } else {
           alert("Échec de la connexion");
         }
@@ -119,7 +143,6 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   createAccountForm.addEventListener("submit", function (event) {
-    console.log("loginForm submit");
     event.preventDefault();
 
     var email = document.getElementById("emailInput").value;
@@ -129,7 +152,6 @@ document.addEventListener("DOMContentLoaded", function () {
       email: email,
       password: password,
     };
-    console.log(credentials);
 
     fetch("http://localhost:3000/register", {
       method: "POST",
