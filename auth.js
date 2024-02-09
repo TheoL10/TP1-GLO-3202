@@ -10,25 +10,31 @@ const port = 3000;
 
 app.use(express.json());
 app.use(cookieParser());
+// uniquement l'origine http://localhost:5500 est autorisée à faire des requêtes
 app.use(cors(
   {
-    origin: true,
+    origin: 'http://localhost:5500',
     credentials: true
   }
 )
 );
 
+// nombre de tours pour le hachage
 const saltRounds = 10;
 
+// Création d'un compte
 app.post("/register", (req, res) => {
+  // récupération des données de la requête
   const { email, password } = req.body;
-
+  
+  // hachage du mot de passe
   bcrypt.hash(password, saltRounds, (err, hashedPassword) => {
     if (err) {
       console.error(err);
       return res.status(500).send("Erreur interne du serveur");
     }
-
+    
+    // lecture du fichier database.json
     fs.readFile("database.json", "utf8", (err, data) => {
       if (err) {
         console.error(err);
@@ -37,14 +43,17 @@ app.post("/register", (req, res) => {
 
       let database;
       try {
+        // conversion du contenu du fichier en objet JavaScript
         database = JSON.parse(data);
       } catch (parseError) {
         console.error(parseError);
         database = [];
       }
-
+      
+      // ajout du nouvel utilisateur à la base de données (fichier database.json)
       database.push({ email, password: hashedPassword });
-
+      
+      // écriture de l'email et du mot de passe haché dans le fichier database.json
       fs.writeFile("database.json", JSON.stringify(database), (err) => {
         if (err) {
           console.error(err);
@@ -56,9 +65,11 @@ app.post("/register", (req, res) => {
   });
 });
 
+// Connexion à un compte (création d'un cookie)
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
   
+  // lecture du fichier database.json
   fs.readFile("database.json", "utf8", (err, data) => {
     if (err) {
       console.error(err);
@@ -73,16 +84,19 @@ app.post("/login", (req, res) => {
       return res.status(500).send("Internal Server Error");
     }
     
+    // recherche de l'utilisateur dans la base de données
     const user = database.find((user) => user.email === email);
     const randomValue = uuid.v4();
 
     if (user) {
+      // comparaison du mot de passe haché avec le mot de passe fourni
       bcrypt.compare(password, user.password, (err, result) => {
         if (err) {
           console.error(err);
           return res.status(500).send("Internal Server Error");
         }
         if (result) {
+          // création d'un cookie contenant une valeur aléatoire
           res.cookie('userCookie', randomValue, { maxAge: 900000, httpOnly: true });
           res.status(200).send("OK");
         } else {
@@ -95,8 +109,11 @@ app.post("/login", (req, res) => {
   });
 });
 
+// Déconnexion d'un compte (suppression du cookie)
 app.get("/logout", (req, res) => {
+  // vérification de la présence du cookie
   if ('userCookie' in req.cookies) {
+      // suppression du cookie
       res.clearCookie('userCookie');
       res.status(200).send('Déconnexion réussie');
   } else {
@@ -104,6 +121,15 @@ app.get("/logout", (req, res) => {
   }
 });
 
+app.get("/check-cookie", (req, res) => {
+  if ('userCookie' in req.cookies) {
+    res.status(200).send('Cookie présent');
+  } else {
+    res.status(401).send('Cookie absent');
+  }
+});
+
+// Vérification de la connexion
 app.listen(port, () => {
   console.log(`Serveur en cours d'exécution sur http://localhost:${port}`);
 });

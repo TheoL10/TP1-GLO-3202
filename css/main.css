@@ -58,15 +58,13 @@ body {
 }
 
 .dark-mode .navbar {
-  background-color: #222; /* Changed color to a darker shade */
+  background-color: #222;
 }
 
-/* Added styling for navbar in dark mode */
 .dark-mode .navbar a {
-  color: #ddd; /* Adjusted text color for better visibility */
+  color: #ddd;
 }
 
-/* Adjusted hover and active colors for links in dark mode */
 .dark-mode .navbar a:hover {
   background-color: #555;
   color: white;
@@ -76,13 +74,11 @@ body {
   margin-right: 20px;
 }
 
-/* Style de base pour le formulaire */
 #loginForm {
   width: 300px;
   margin: 0 auto;
 }
 
-/* Style pour les champs de saisie */
 #loginEmail,
 #loginPassword {
   width: 100%;
@@ -93,7 +89,6 @@ body {
   border-radius: 4px;
 }
 
-/* Style pour le bouton de soumission */
 #loginSubmit {
   width: 100%;
   background-color: #4CAF50;
@@ -105,17 +100,14 @@ body {
   cursor: pointer;
 }
 
-/* Changement de style au survol du bouton */
 #loginSubmit:hover {
   background-color: #45a049;
 }
 
-/* Changement de style lors du clic sur le bouton */
 #loginSubmit:active {
   background-color: #3e8e41;
 }
 
-/* Style pour le placeholder */
 ::-webkit-input-placeholder {
   color: #bbb;
 }
@@ -133,24 +125,21 @@ body {
 }
 
 .modal-content {
-  background-color: #fefefe; /* Fond blanc */
-  margin: 5% auto; /* Centre la modal verticalement et horizontalement */
+  background-color: #fefefe;
+  margin: 5% auto;
   padding: 20px;
   border: 1px solid #888;
-  width: 80%; /* Largeur de la modal */
+  width: 80%;
 }
 
-/* Style pour le titre de la modal */
 .modal h2 {
-  margin-top: 0; /* Supprime la marge par défaut */
+  margin-top: 0;
 }
 
-/* Style pour le formulaire de création de compte */
 #createAccountForm {
-  margin-top: 20px; /* Espace au-dessus du formulaire */
+  margin-top: 20px;
 }
 
-/* Style pour les champs de saisie */
 #emailInput,
 #passwordInput {
   width: 100%;
@@ -161,7 +150,6 @@ body {
   border-radius: 4px;
 }
 
-/* Style pour le bouton de soumission */
 #createAccountForm button {
   width: 100%;
   background-color: #4CAF50;
@@ -173,17 +161,14 @@ body {
   cursor: pointer;
 }
 
-/* Changement de style au survol du bouton */
 #createAccountForm button:hover {
   background-color: #45a049;
 }
 
-/* Changement de style lors du clic sur le bouton */
 #createAccountForm button:active {
   background-color: #3e8e41;
 }
 
-/* Style pour le placeholder */
 #createAccountForm input::placeholder {
   color: #bbb;
 }

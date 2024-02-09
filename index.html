@@ -3,17 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>TP1</title>
     <link rel="stylesheet" href="css/main.css">
+    <script src="javascript/dark.js"></script>
     <script src="javascript/main.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
+    <!-- création d'une navbar avec un bouton de connexion et un bouton de création de compte -->
     <div class="navbar">
         <a href="#" id="loginBtn">Connexion</a>
         <a href="#" id="createAccountBtn">Créer un compte</a>
-        <a href="#" id="modeToggle"><i class="fas fa-sun"></i></a>
+        <a href="#" id="modeToggle"><i id="icon-dark-mode" class="fas fa-sun"></i></a>
     </div>
+    <!-- création d'une modal de connexion -->
     <div id="modal" class="modal">
         <h2>Connexion</h2>
         <form id="loginForm">
@@ -22,6 +25,7 @@
             <button type="submit" id="loginSubmit">Se connecter</button>
         </form>
     </div>
+    <!-- création d'une modal de création de compte -->
     <div id="createAccountModal" class="modal">
         <h2>Créer un compte</h2>
         <form id="createAccountForm">
