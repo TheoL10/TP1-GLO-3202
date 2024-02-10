@@ -1,0 +1,8 @@
+{
+    "builds": [
+      {
+        "src": "auth.js",
+        "use": "@vercel/node"
+      }
+    ]
+  }
