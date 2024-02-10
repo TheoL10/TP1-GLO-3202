@@ -24,10 +24,6 @@ app.use(cors(
 // nombre de tours pour le hachage
 const saltRounds = 10;
 
-app.get("/test", (req, res) => {
-  res.status(200).send("OK");
-});
-
 // Création d'un compte
 app.post("/register", (req, res) => {
   // récupération des données de la requête
