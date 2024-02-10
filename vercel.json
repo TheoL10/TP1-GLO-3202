@@ -4,7 +4,10 @@
       { "src": "/api/(.*)", "dest": "/index.js" }
     ],
     "builds": [
-      { "src": "/public/**", "use": "@vercel/static" },
+      { "src": "/index.html", "use": "@vercel/static" },
+      { "src": "/css/**", "use": "@vercel/static" },
+      { "src": "/javascript/**", "use": "@vercel/static" },
+      { "src": "/database.json", "use": "@vercel/static" },
       { "src": "/index.js", "use": "@vercel/node" }
     ]
   }
