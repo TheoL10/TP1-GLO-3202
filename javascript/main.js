@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // fonction qui me permet de mettre à jour le status de mes événements
   function updateEventStatus(eventId, newStatus) {
-    fetch(`http://localhost:3000/events/${eventId}`, {
+    fetch(`https://tp1-glo-3202-production-6087.up.railway.app/events/${eventId}`, {
       credentials: "include",
       method: "PUT",
       headers: {
@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", function () {
   
   // fonction qui me permet de récupérer les événements et de les afficher dans le front
   function toggleEvents() {
-    fetch("http://localhost:3000/events", {
+    fetch("https://tp1-glo-3202-production-6087.up.railway.app/events", {
       credentials: "include",
       method: "GET",
     })
@@ -99,7 +99,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // permet de vérifier si j'ai un cookie ou non et change l'affichage du bouton de connexion en conséquence
-  fetch("http://localhost:3000/check-cookie", {
+  fetch("https://tp1-glo-3202-production-6087.up.railway.app/check-cookie", {
     credentials: "include",
     method: "GET",
   })
@@ -136,7 +136,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // si mon localStorage contient "isLoggedIn" et que sa valeur est "true" alors je déconnecte l'utilisateur
     if (localStorage.getItem("isLoggedIn") === "true") {
       // je fais une requête GET à l'URL "http://localhost:3000/logout"
-      fetch("http://localhost:3000/logout", {
+      fetch("https://tp1-glo-3202-production-6087.up.railway.app/logout", {
         // j'indique que je veux envoyer des cookies avec ma requête
         credentials: "include",
         method: "GET",
@@ -205,7 +205,7 @@ document.addEventListener("DOMContentLoaded", function () {
       password: password,
     };
 
-    fetch("http://localhost:3000/login", {
+    fetch("https://tp1-glo-3202-production-6087.up.railway.app/login", {
       mode: "cors",
       credentials: "include",
       method: "POST",
@@ -255,7 +255,7 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     // j'envoie une requête POST à l'URL "http://localhost:3000/register"
-    fetch("http://localhost:3000/register", {
+    fetch("https://tp1-glo-3202-production-6087.up.railway.app/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -296,7 +296,7 @@ document.addEventListener("DOMContentLoaded", function () {
       status: taskStatus,
     };
 
-    fetch("http://localhost:3000/event", {
+    fetch("https://tp1-glo-3202-production-6087.up.railway.app/event", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
