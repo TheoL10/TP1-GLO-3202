@@ -7,17 +7,97 @@ document.addEventListener("DOMContentLoaded", function () {
   var createAccountForm = document.getElementById("createAccountForm");
   var modeToggle = document.getElementById("modeToggle");
   var icon = document.getElementById("icon-dark-mode");
+  var addEvent = document.getElementById("addEvent");
+  var addTaskModal = document.getElementById("addTaskModal");
+  var addTaskForm = document.getElementById("addTaskForm");
+
+  // fonction qui me permet de mettre à jour le status de mes événements
+  function updateEventStatus(eventId, newStatus) {
+    fetch(`http://localhost:3000/events/${eventId}`, {
+      credentials: "include",
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ status: newStatus }),
+    })
+      .then(function (response) {
+        if (!response.ok) {
+          throw new Error("Échec de la mise à jour du statut de l'événement");
+        }
+      })
+      .catch(function (error) {
+        console.error("Error:", error);
+        alert(
+          "Une erreur s'est produite lors de la mise à jour du statut de l'événement"
+        );
+      });
+  }
+  
+  // fonction qui me permet de récupérer les événements et de les afficher dans le front
+  function toggleEvents() {
+    fetch("http://localhost:3000/events", {
+      credentials: "include",
+      method: "GET",
+    })
+      .then(function (response) {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error("Échec de la récupération des événements");
+        }
+      })
+      .then(function (events) {
+        const eventsList = document.getElementById("eventsList");
+
+        events.forEach(function (event) {
+          if (event.name !== undefined && event.status !== undefined) {
+            const listItem = document.createElement("li");
+            listItem.textContent = event.name;
+
+            // création d'un select pour changer le statut de l'événement
+            const statusDropdown = document.createElement("select");
+            const optionTodo = document.createElement("option");
+            optionTodo.value = "todo";
+            optionTodo.textContent = "À faire";
+            const optionInProgress = document.createElement("option");
+            optionInProgress.value = "inProgress";
+            optionInProgress.textContent = "En cours";
+            const optionCompleted = document.createElement("option");
+            optionCompleted.value = "completed";
+            optionCompleted.textContent = "Terminé";
+            statusDropdown.appendChild(optionTodo);
+            statusDropdown.appendChild(optionInProgress);
+            statusDropdown.appendChild(optionCompleted);
+            statusDropdown.value = event.status;
+
+            statusDropdown.addEventListener("change", function () {
+              updateEventStatus(event.name, statusDropdown.value);
+            });
+
+            listItem.appendChild(statusDropdown);
+            eventsList.appendChild(listItem);
+          }
+        });
+      })
+      .catch(function (error) {
+        console.error("Error:", error);
+        alert(
+          "Une erreur s'est produite lors de la récupération des événements"
+        );
+      });
+  }
 
   // j'initialise la valeur de mon localStorage à "false" si elle n'existe pas
   if (localStorage.getItem("isLoggedIn") === null) {
     localStorage.setItem("isLoggedIn", "false");
   }
-  
+
   // si mon localStorage isLoggedIn est à false alors je mets à jour le texte de mon bouton de connexion
   if (localStorage.getItem("isLoggedIn") === "false") {
     loginBtn.textContent = "Connexion";
   }
-  
+
   // permet de vérifier si j'ai un cookie ou non et change l'affichage du bouton de connexion en conséquence
   fetch("http://localhost:3000/check-cookie", {
     credentials: "include",
@@ -27,9 +107,12 @@ document.addEventListener("DOMContentLoaded", function () {
       if (response.ok) {
         localStorage.setItem("isLoggedIn", "true");
         loginBtn.textContent = "Déconnexion";
+        addEvent.style.display = "block";
+        toggleEvents();
       } else {
         localStorage.setItem("isLoggedIn", "false");
         loginBtn.textContent = "Connexion";
+        addEvent.style.display = "none";
       }
     })
     .catch(function (error) {
@@ -42,8 +125,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (isLoggedIn) {
       loginBtn.textContent = "Déconnexion";
+      addEvent.style.display = "block";
     } else {
       loginBtn.textContent = "Connexion";
+      addEvent.style.display = "none";
     }
   }
 
@@ -61,6 +146,8 @@ document.addEventListener("DOMContentLoaded", function () {
             // si la déconnexion est réussie alors je passe la valeur de mon localStorage à "false"
             localStorage.setItem("isLoggedIn", "false");
             loginBtn.textContent = "Connexion";
+            addEvent.style.display = "none";
+            document.getElementById("eventsList").innerHTML = "";
           } else {
             alert("Échec de la déconnexion");
           }
@@ -141,6 +228,8 @@ document.addEventListener("DOMContentLoaded", function () {
           // je vide les champs email et password
           document.getElementById("loginEmail").value = "";
           document.getElementById("loginPassword").value = "";
+          addEvent.style.display = "block";
+          toggleEvents();
         } else {
           alert("Échec de la connexion");
         }
@@ -187,6 +276,44 @@ document.addEventListener("DOMContentLoaded", function () {
       .catch(function (error) {
         console.error("Error:", error);
         alert("Une erreur s'est produite lors de la création du compte");
+      });
+  });
+  
+  // si je clique sur la croix alors ma modal apparaît
+  addEvent.addEventListener("click", function () {
+    addTaskModal.style.display = "block";
+  });
+  
+  // fonction qui permet d'ajouter une tâche dans la base de données
+  addTaskForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    var taskName = document.getElementById("taskNameInput").value;
+    var taskStatus = document.getElementById("taskStatusInput").value;
+
+    var taskData = {
+      name: taskName,
+      status: taskStatus,
+    };
+
+    fetch("http://localhost:3000/event", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(taskData),
+    })
+      .then(function (response) {
+        if (response.ok) {
+          alert("Événement créé avec succès");
+          document.getElementById("addTaskModal").style.display = "none";
+        } else {
+          alert("Échec de la création de l'événement");
+        }
+      })
+      .catch(function (error) {
+        console.error("Error:", error);
+        alert("Une erreur s'est produite lors de la création de l'événement");
       });
   });
 });

@@ -34,5 +34,21 @@
             <button type="submit">Créer le compte</button>
         </form>
     </div>
+    <!-- création d'une modal de création d'évènement -->
+    <span id="addEvent"><i class="fas fa-plus"></i></span>
+    <div id="addTaskModal" class="modal">
+        <h2>Ajouter une tâche</h2>
+        <form id="addTaskForm">
+            <input type="text" id="taskNameInput" name="taskName" placeholder="Nom de la tâche" required>
+            <select id="taskStatusInput" name="taskStatus" required>
+                <option value="todo">À faire</option>
+                <option value="inProgress">En cours</option>
+                <option value="completed">Terminé</option>
+            </select>
+            <button type="submit">Ajouter la tâche</button>
+        </form>
+    </div>
+    <!-- création d'une liste d'évènements -->
+    <ul id="eventsList"></ul>
 </body>
 </html>

@@ -172,3 +172,71 @@ body {
 #createAccountForm input::placeholder {
   color: #bbb;
 }
+
+#addEvent {
+  display: none;
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  font-size: 48px;
+  cursor: pointer;
+}
+
+#eventModal {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fefefe;
+  padding: 20px;
+  border: 1px solid #888;
+  border-radius: 5px;
+  z-index: 9999;
+}
+
+#eventModal input,
+#eventModal select,
+#eventModal button {
+  margin: 10px 0;
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+#eventsList {
+  list-style-type: none;
+  padding: 0;
+}
+
+#eventsList li {
+  background-color: #333;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  padding: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  color: white;
+}
+
+.dark-mode #eventsList li {
+  background-color: #f0f0f0;
+  color: black;
+}
+
+#eventsList li::before {
+  content: "\2022";
+  color: #ff6347;
+  font-weight: bold;
+  display: flex;
+  width: 1em;
+  margin-left: -1em;
+}
+
+#eventsList li span {
+  font-weight: bold;
+  color: #333;
+}
+
+select {
+  margin-left: 10px;
+}

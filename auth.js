@@ -5,6 +5,8 @@ const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
 const uuid = require('uuid');
 
+const events = [];
+
 const app = express();
 const port = 3000;
 
@@ -73,7 +75,7 @@ app.post("/login", (req, res) => {
   fs.readFile("database.json", "utf8", (err, data) => {
     if (err) {
       console.error(err);
-      return res.status(500).send("Internal Server Error");
+      return res.status(500).send("Erreur interne du serveur");
     }
 
     let database;
@@ -81,7 +83,7 @@ app.post("/login", (req, res) => {
       database = JSON.parse(data);
     } catch (parseError) {
       console.error(parseError);
-      return res.status(500).send("Internal Server Error");
+      return res.status(500).send("Erreur interne du serveur");
     }
     
     // recherche de l'utilisateur dans la base de données
@@ -93,18 +95,18 @@ app.post("/login", (req, res) => {
       bcrypt.compare(password, user.password, (err, result) => {
         if (err) {
           console.error(err);
-          return res.status(500).send("Internal Server Error");
+          return res.status(500).send("Erreur interne du serveur");
         }
         if (result) {
           // création d'un cookie contenant une valeur aléatoire
           res.cookie('userCookie', randomValue, { maxAge: 900000, httpOnly: true });
           res.status(200).send("OK");
         } else {
-          res.status(401).send("Unauthorized");
+          res.status(401).send("Pas autorisé");
         }
       });
     } else {
-      res.status(401).send("Unauthorized");
+      res.status(401).send("Pas autorisé");
     }
   });
 });
@@ -128,6 +130,94 @@ app.get("/check-cookie", (req, res) => {
     res.status(401).send('Cookie absent');
   }
 });
+
+// route qui permet de créer un événement
+app.post("/event", (req, res) => {
+  const { name, status } = req.body;
+
+  fs.readFile("database.json", "utf8", (err, data) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Erreur interne du serveur");
+    }
+    
+    let database;
+    try {
+      database = JSON.parse(data);
+    } catch (parseError) {
+      console.error(parseError);
+      database = [];
+    }
+
+    database.push({ name, status : status });
+
+    fs.writeFile("database.json", JSON.stringify(database), (err) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send("Erreur interne du serveur");
+      }
+      res.status(200).send("Compte créé avec succès");
+    });
+  });
+});
+
+// route qui permet de récupérer la liste des événements
+app.get("/events", (req, res) => {
+  fs.readFile("database.json", "utf8", (err, data) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Erreur interne du serveur");
+    }
+    try {
+      const events = JSON.parse(data);
+      
+      // création d'un tableau contenant uniquement le nom et le statut de chaque événement
+      const eventData = events.map(event => ({ name: event.name, status: event.status }));
+      
+      res.status(200).json(eventData);
+    } catch (error) {
+      console.error("Error:", error);
+      res.status(500).send("Erreur interne du serveur");
+    }
+  });
+});
+
+// route qui permet de mettre à jour le statut d'un événement
+app.put('/events/:eventName', (req, res) => {
+  const eventName = req.params.eventName;
+  const newStatus = req.body.status;
+  
+  fs.readFile('database.json', (err, data) => {
+      if (err) {
+          console.error('Erreur lors de la lecture du fichier database.json', err);
+          return res.status(500).json({ error: 'Erreur serveur lors de la lecture de la base de données' });
+      }
+
+      try {
+          const eventData = JSON.parse(data);
+          // recherche de l'événement à mettre à jour
+          const eventToUpdate = eventData.find(event => event.name === eventName);
+
+          if (eventToUpdate) {
+              eventToUpdate.status = newStatus;
+
+              fs.writeFile('database.json', JSON.stringify(eventData), (err) => {
+                  if (err) {
+                      console.error('Erreur lors de la mise à jour du fichier database.json', err);
+                      return res.status(500).json({ error: 'Erreur serveur lors de la mise à jour de l\'événement' });
+                  }
+                  res.json({ message: 'Statut de l\'événement mis à jour avec succès' });
+              });
+          } else {
+              return res.status(404).json({ error: 'Événement non trouvé' });
+          }
+      } catch (error) {
+          console.error('Erreur lors de l\'analyse des données JSON', error);
+          return res.status(500).json({ error: 'Erreur serveur lors de la manipulation des données' });
+      }
+  });
+});
+
 
 // Vérification de la connexion
 app.listen(port, () => {
