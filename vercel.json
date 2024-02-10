@@ -5,6 +5,5 @@
       { "src": "/css/**", "use": "@vercel/static" },
       { "src": "/javascript/**", "use": "@vercel/static" },
       { "src": "/database.json", "use": "@vercel/static" }
-    ],
-    "github.enable" : true
+    ]
 }
