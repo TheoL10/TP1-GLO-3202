@@ -24,7 +24,7 @@ app.use(cors(
 // nombre de tours pour le hachage
 const saltRounds = 10;
 
-app.use((req, res) => {
+app.use("/", (req, res) => {
   res.send("Hello World!");
 });
 
