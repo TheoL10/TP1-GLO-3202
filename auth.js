@@ -15,7 +15,7 @@ app.use(cookieParser());
 // uniquement l'origine http://localhost:5500 est autorisée à faire des requêtes
 app.use(cors(
   {
-    origin: 'https://tp-1-glo-3202-q5mcin5qf-theol10s-projects.vercel.app',
+    origin: '*',
     credentials: true
   }
 )
