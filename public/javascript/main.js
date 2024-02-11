@@ -1,5 +1,3 @@
-const e = require("express");
-
 document.addEventListener("DOMContentLoaded", function () {
   var loginBtn = document.getElementById("loginBtn");
   var createAccountBtn = document.getElementById("createAccountBtn");
@@ -325,14 +323,7 @@ document.addEventListener("DOMContentLoaded", function () {
           alert("Événement créé avec succès");
           document.getElementById("addTaskModal").style.display = "none";
           toggleEvents()
-        }
-        if (response.status === 400) {
-          alert("Mail invalide ");
-        }
-        if (response.status === 402) {
-          alert("Le mot de passe doit contenir au moins 8 caractères avec au moins un chiffre, une lettre majuscule, une lettre minuscule et un caractère spécial.");
-        }
-        else {
+        } else {
           alert("Échec de la création de l'événement");
         }
       })

@@ -34,21 +34,6 @@ app.get("/", (req, res) => {
 app.post("/register", (req, res) => {
   // récupération des données de la requête
   const { email, password } = req.body;
-
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-  // Regex pour vérifier la force du mot de passe (au moins 8 caractères avec au moins un chiffre, une lettre majuscule, une lettre minuscule et un caractère spécial)
-  const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}$/;
-
-  // Vérification de l'email avec la regex
-  if (!emailRegex.test(email)) {
-    return res.status(400).send("Veuillez entrer une adresse email valide.");
-  }
-
-  // Vérification du mot de passe avec la regex
-  if (!passwordRegex.test(password)) {
-    return res.status(402).send("Le mot de passe doit contenir au moins 8 caractères avec au moins un chiffre, une lettre majuscule, une lettre minuscule et un caractère spécial.");
-  }
   
   // hachage du mot de passe
   bcrypt.hash(password, saltRounds, (err, hashedPassword) => {
