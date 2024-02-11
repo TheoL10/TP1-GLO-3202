@@ -204,7 +204,7 @@ app.put('/events/:eventName', (req, res) => {
           // recherche de l'événement à mettre à jour
           const eventToUpdate = eventData.find(event => event.name === eventName);
 
-          if (eventToUpdate) {
+          if (eventToUpdate && 'userCookie' in req.cookies) {
               eventToUpdate.status = newStatus;
 
               fs.writeFile('database.json', JSON.stringify(eventData), (err) => {
