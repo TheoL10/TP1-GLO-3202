@@ -10,6 +10,7 @@ const events = [];
 const app = express();
 const port = process.env.PORT || 3000;
 
+app.use(express.static("public"));
 app.use(express.json());
 app.use(cookieParser());
 // uniquement l'origine http://localhost:5500 est autorisée à faire des requêtes
@@ -23,6 +24,11 @@ app.use(cors(
 
 // nombre de tours pour le hachage
 const saltRounds = 10;
+
+app.get("/", (req, res) => {
+  // Vous n'avez pas besoin d'envoyer de réponse ici car express.static s'en charge
+  // Le fichier index.html du répertoire "public" sera automatiquement servi
+});
 
 // Création d'un compte
 app.post("/register", (req, res) => {
