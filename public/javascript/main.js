@@ -247,6 +247,21 @@ document.addEventListener("DOMContentLoaded", function () {
     // récupération des valeurs des champs email et password
     var email = document.getElementById("emailInput").value;
     var password = document.getElementById("passwordInput").value;
+    
+    var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    // Regex pour vérifier la force du mot de passe (au moins 8 caractères avec au moins un chiffre, une lettre majuscule, une lettre minuscule et un caractère spécial)
+    var passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}$/;
+
+    if (!emailRegex.test(email)) {
+        alert("Veuillez entrer une adresse email valide.");
+        return;
+    }
+
+    if (!passwordRegex.test(password)) {
+        alert("Le mot de passe doit contenir au moins 8 caractères avec au moins un chiffre, une lettre majuscule, une lettre minuscule et un caractère spécial.");
+        return;
+    }
 
     var credentials = {
       email: email,
