@@ -286,6 +286,8 @@ document.addEventListener("DOMContentLoaded", function () {
           alert("Compte créé avec succès");
           // je ferme ma modal de création de compte
           createAccountModal.style.display = "none";
+          document.getElementById("emailInput").innerHTML = "";
+          document.getElementById("passwordInput").innerHTML = "";
         } else {
           alert("Échec de la création du compte");
         }
