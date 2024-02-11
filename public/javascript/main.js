@@ -110,6 +110,7 @@ document.addEventListener("DOMContentLoaded", function () {
         addEvent.style.display = "block";
         toggleEvents();
       } else {
+        localStorage.setItem("isLoggedIn", "false");
         loginBtn.textContent = "Connexion";
         addEvent.style.display = "none";
       }
