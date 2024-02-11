@@ -47,7 +47,7 @@ app.post("/register", (req, res) => {
 
   // Vérification du mot de passe avec la regex
   if (!passwordRegex.test(password)) {
-    return res.status(400).send("Le mot de passe doit contenir au moins 8 caractères avec au moins un chiffre, une lettre majuscule, une lettre minuscule et un caractère spécial.");
+    return res.status(402).send("Le mot de passe doit contenir au moins 8 caractères avec au moins un chiffre, une lettre majuscule, une lettre minuscule et un caractère spécial.");
   }
   
   // hachage du mot de passe
