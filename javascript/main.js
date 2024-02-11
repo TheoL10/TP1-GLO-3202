@@ -99,25 +99,25 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // permet de vérifier si j'ai un cookie ou non et change l'affichage du bouton de connexion en conséquence
-  fetch("https://tp1-glo-3202-production-6087.up.railway.app/check-cookie", {
-    credentials: "include",
-    method: "GET",
-  })
-    .then(function (response) {
-      if (response.ok) {
-        localStorage.setItem("isLoggedIn", "true");
-        loginBtn.textContent = "Déconnexion";
-        addEvent.style.display = "block";
-        toggleEvents();
-      } else {
-        localStorage.setItem("isLoggedIn", "false");
-        loginBtn.textContent = "Connexion";
-        addEvent.style.display = "none";
-      }
-    })
-    .catch(function (error) {
-      console.error("Error:", error);
-    });
+  // fetch("https://tp1-glo-3202-production-6087.up.railway.app/check-cookie", {
+  //   credentials: "include",
+  //   method: "GET",
+  // })
+  //   .then(function (response) {
+  //     if (response.ok) {
+  //       localStorage.setItem("isLoggedIn", "true");
+  //       loginBtn.textContent = "Déconnexion";
+  //       addEvent.style.display = "block";
+  //       toggleEvents();
+  //     } else {
+  //       localStorage.setItem("isLoggedIn", "false");
+  //       loginBtn.textContent = "Connexion";
+  //       addEvent.style.display = "none";
+  //     }
+  //   })
+  //   .catch(function (error) {
+  //     console.error("Error:", error);
+  //   });
 
   // fonction qui permet de mettre à jour le texte du bouton de connexion
   function updateLoginButton() {
