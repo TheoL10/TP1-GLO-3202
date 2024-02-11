@@ -204,7 +204,8 @@ document.addEventListener("DOMContentLoaded", function () {
       email: email,
       password: password,
     };
-
+    
+    // requête qui permet de se connecter
     fetch("https://tp1-glo-3202-production-6087.up.railway.app/login", {
       mode: "cors",
       credentials: "include",
@@ -249,9 +250,10 @@ document.addEventListener("DOMContentLoaded", function () {
     var email = document.getElementById("emailInput").value;
     var password = document.getElementById("passwordInput").value;
     
+    // Regex pour vérifier le format de l'email
     var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    // Regex pour vérifier la force du mot de passe (au moins 8 caractères avec au moins un chiffre, une lettre majuscule, une lettre minuscule et un caractère spécial)
+    // Regex pour vérifier la force du mot de passe
     var passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}$/;
 
     if (!emailRegex.test(email)) {
@@ -310,7 +312,8 @@ document.addEventListener("DOMContentLoaded", function () {
       name: taskName,
       status: taskStatus,
     };
-
+    
+    // requete qui permet de créer un événement
     fetch("https://tp1-glo-3202-production-6087.up.railway.app/event", {
       method: "POST",
       headers: {
