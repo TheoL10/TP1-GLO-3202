@@ -295,7 +295,7 @@ document.addEventListener("DOMContentLoaded", function () {
       name: taskName,
       status: taskStatus,
     };
-
+    
     fetch("https://tp1-glo-3202-production-6087.up.railway.app/event", {
       method: "POST",
       headers: {
