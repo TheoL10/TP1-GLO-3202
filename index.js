@@ -141,6 +141,12 @@ app.get("/check-cookie", (req, res) => {
 app.post("/event", (req, res) => {
   const { name, status } = req.body;
 
+  const userCookie = req.cookies.userCookie;
+  
+  if (!userCookie) {
+    return res.status(401).send("Non autorisé, aucun cookie trouvé");
+  }
+  
   fs.readFile("database.json", "utf8", (err, data) => {
     if (err) {
       console.error(err);
@@ -162,13 +168,19 @@ app.post("/event", (req, res) => {
         console.error(err);
         return res.status(500).send("Erreur interne du serveur");
       }
-      res.status(200).send("Compte créé avec succès");
+      res.status(200).send("Evénement créé avec succès");
     });
   });
 });
 
 // route qui permet de récupérer la liste des événements
 app.get("/events", (req, res) => {
+  const userCookie = req.cookies.userCookie;
+  
+  if (!userCookie) {
+    return res.status(401).send("Non autorisé, aucun cookie trouvé");
+  }
+
   fs.readFile("database.json", "utf8", (err, data) => {
     if (err) {
       console.error(err);
@@ -192,6 +204,11 @@ app.get("/events", (req, res) => {
 app.put('/events/:eventName', (req, res) => {
   const eventName = req.params.eventName;
   const newStatus = req.body.status;
+  const userCookie = req.cookies.userCookie;
+  
+  if (!userCookie) {
+    return res.status(401).send("Non autorisé, aucun cookie trouvé");
+  }
   
   fs.readFile('database.json', (err, data) => {
       if (err) {
@@ -204,7 +221,7 @@ app.put('/events/:eventName', (req, res) => {
           // recherche de l'événement à mettre à jour
           const eventToUpdate = eventData.find(event => event.name === eventName);
 
-          if (eventToUpdate && 'userCookie' in req.cookies) {
+          if (eventToUpdate) {
               eventToUpdate.status = newStatus;
 
               fs.writeFile('database.json', JSON.stringify(eventData), (err) => {
