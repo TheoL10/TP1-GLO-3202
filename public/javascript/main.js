@@ -306,6 +306,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (response.ok) {
           alert("Événement créé avec succès");
           document.getElementById("addTaskModal").style.display = "none";
+          toggleEvents()
         } else {
           alert("Échec de la création de l'événement");
         }
