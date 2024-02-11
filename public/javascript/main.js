@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
   var addEvent = document.getElementById("addEvent");
   var addTaskModal = document.getElementById("addTaskModal");
   var addTaskForm = document.getElementById("addTaskForm");
+  var informationBtn = document.getElementById("informationBtn");
 
   // fonction qui me permet de mettre à jour le status de mes événements
   function updateEventStatus(eventId, newStatus) {
@@ -337,5 +338,9 @@ document.addEventListener("DOMContentLoaded", function () {
         console.error("Error:", error);
         alert("Une erreur s'est produite lors de la création de l'événement");
       });
+  });
+
+  informationBtn.addEventListener("click", function () {
+    alert("Connectez-vous afin de pouvoir avoir accès à la liste des événements et de pouvoir en ajouter (TodoList).");
   });
 });
