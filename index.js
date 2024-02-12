@@ -25,9 +25,8 @@ app.use(cors(
 // nombre de tours pour le hachage
 const saltRounds = 10;
 
+// permet d'afficher mon frontend lorsque je vais sur le site
 app.get("/", (req, res) => {
-  // Vous n'avez pas besoin d'envoyer de réponse ici car express.static s'en charge
-  // Le fichier index.html du répertoire "public" sera automatiquement servi
 });
 
 // Création d'un compte
