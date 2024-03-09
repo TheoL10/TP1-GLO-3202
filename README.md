@@ -4,10 +4,7 @@
 ## Prérequis
 - Node.js
 
-## Installation
+## Installation/lancer l'application
 ```bash
 npm install
-
-## Pour lancer l'application
-```bash
 node index.js
