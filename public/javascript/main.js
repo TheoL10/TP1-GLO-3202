@@ -7,87 +7,6 @@ document.addEventListener("DOMContentLoaded", function () {
   var createAccountForm = document.getElementById("createAccountForm");
   var modeToggle = document.getElementById("modeToggle");
   var icon = document.getElementById("icon-dark-mode");
-  var addEvent = document.getElementById("addEvent");
-  var addTaskModal = document.getElementById("addTaskModal");
-  var addTaskForm = document.getElementById("addTaskForm");
-  var informationBtn = document.getElementById("informationBtn");
-
-  // fonction qui me permet de mettre à jour le status de mes événements
-  function updateEventStatus(eventId, newStatus) {
-    fetch(`https://tp1-glo-3202-production-6087.up.railway.app/events/${eventId}`, {
-      credentials: "include",
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ status: newStatus }),
-    })
-      .then(function (response) {
-        if (!response.ok) {
-          throw new Error("Échec de la mise à jour du statut de l'événement");
-        }
-      })
-      .catch(function (error) {
-        console.error("Error:", error);
-        alert(
-          "Une erreur s'est produite lors de la mise à jour du statut de l'événement"
-        );
-      });
-  }
-  
-  // fonction qui me permet de récupérer les événements et de les afficher dans le front
-  function toggleEvents() {
-    fetch("https://tp1-glo-3202-production-6087.up.railway.app/events", {
-      credentials: "include",
-      method: "GET",
-    })
-      .then(function (response) {
-        if (response.ok) {
-          return response.json();
-        } else {
-          throw new Error("Échec de la récupération des événements");
-        }
-      })
-      .then(function (events) {
-        const eventsList = document.getElementById("eventsList");
-
-        events.forEach(function (event) {
-          if (event.name !== undefined && event.status !== undefined) {
-            const listItem = document.createElement("li");
-            listItem.textContent = event.name;
-
-            // création d'un select pour changer le statut de l'événement
-            const statusDropdown = document.createElement("select");
-            const optionTodo = document.createElement("option");
-            optionTodo.value = "todo";
-            optionTodo.textContent = "À faire";
-            const optionInProgress = document.createElement("option");
-            optionInProgress.value = "inProgress";
-            optionInProgress.textContent = "En cours";
-            const optionCompleted = document.createElement("option");
-            optionCompleted.value = "completed";
-            optionCompleted.textContent = "Terminé";
-            statusDropdown.appendChild(optionTodo);
-            statusDropdown.appendChild(optionInProgress);
-            statusDropdown.appendChild(optionCompleted);
-            statusDropdown.value = event.status;
-
-            statusDropdown.addEventListener("change", function () {
-              updateEventStatus(event.name, statusDropdown.value);
-            });
-
-            listItem.appendChild(statusDropdown);
-            eventsList.appendChild(listItem);
-          }
-        });
-      })
-      .catch(function (error) {
-        console.error("Error:", error);
-        alert(
-          "Une erreur s'est produite lors de la récupération des événements"
-        );
-      });
-  }
 
   // j'initialise la valeur de mon localStorage à "false" si elle n'existe pas
   if (localStorage.getItem("isLoggedIn") === null) {
@@ -100,7 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // permet de vérifier si j'ai un cookie ou non et change l'affichage du bouton de connexion en conséquence
-  fetch("https://tp1-glo-3202-production-6087.up.railway.app/check-cookie", {
+  fetch("http://localhost:3000/check-cookie", {
     credentials: "include",
     method: "GET",
   })
@@ -108,12 +27,9 @@ document.addEventListener("DOMContentLoaded", function () {
       if (response.ok) {
         localStorage.setItem("isLoggedIn", "true");
         loginBtn.textContent = "Déconnexion";
-        addEvent.style.display = "block";
-        toggleEvents();
       } else {
         localStorage.setItem("isLoggedIn", "false");
         loginBtn.textContent = "Connexion";
-        addEvent.style.display = "none";
       }
     })
     .catch(function (error) {
@@ -126,10 +42,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (isLoggedIn) {
       loginBtn.textContent = "Déconnexion";
-      addEvent.style.display = "block";
     } else {
       loginBtn.textContent = "Connexion";
-      addEvent.style.display = "none";
     }
   }
 
@@ -137,18 +51,17 @@ document.addEventListener("DOMContentLoaded", function () {
     // si mon localStorage contient "isLoggedIn" et que sa valeur est "true" alors je déconnecte l'utilisateur
     if (localStorage.getItem("isLoggedIn") === "true") {
       // je fais une requête GET à l'URL "http://localhost:3000/logout"
-      fetch("https://tp1-glo-3202-production-6087.up.railway.app/logout", {
+      fetch("http://localhost:3000/logout", {
         // j'indique que je veux envoyer des cookies avec ma requête
         credentials: "include",
         method: "GET",
       })
         .then(function (response) {
           if (response.ok) {
-            // si la déconnexion est réussie alors je passe la valeur de mon localStorage à "false"
+            // si la déconnexion est réussie alors je passe la valeur de mon localStorage à "false" et je mets à jour le texte de mon bouton de connexion et je supprime l'userId de mon localStorage
             localStorage.setItem("isLoggedIn", "false");
             loginBtn.textContent = "Connexion";
-            addEvent.style.display = "none";
-            document.getElementById("eventsList").innerHTML = "";
+            localStorage.removeItem("userId");
           } else {
             alert("Échec de la déconnexion");
           }
@@ -160,18 +73,6 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
       // si mon localStorage contient "isLoggedIn" et que sa valeur est "false" alors j'ouvre la modal
       modal.style.display = "block";
-    }
-  });
-
-  // si je clique en dehors de ma modal alors je la ferme (sauf si je clique sur le bouton de connexion ou sur l'icone de mode sombre)
-  document.addEventListener("click", function (event) {
-    if (
-      !modal.contains(event.target) &&
-      event.target !== loginBtn &&
-      event.target !== modeToggle &&
-      event.target !== icon
-    ) {
-      modal.style.display = "none";
     }
   });
 
@@ -200,14 +101,14 @@ document.addEventListener("DOMContentLoaded", function () {
     // récupération des valeurs des champs email et password
     var email = document.getElementById("loginEmail").value;
     var password = document.getElementById("loginPassword").value;
-
+    
     var credentials = {
       email: email,
       password: password,
     };
     
-    // requête qui permet de se connecter
-    fetch("https://tp1-glo-3202-production-6087.up.railway.app/login", {
+    // j'envoie une requête POST à l'URL "http://localhost:3000/login" pour me connecter
+    fetch("http://localhost:3000/login", {
       mode: "cors",
       credentials: "include",
       method: "POST",
@@ -217,40 +118,59 @@ document.addEventListener("DOMContentLoaded", function () {
       body: JSON.stringify(credentials),
     })
       .then(function (response) {
-        // si l'api me renvoie une réponse positive
         if (response.ok) {
-          // j'allerter l'utilisateur que la connexion est réussie
-          alert("Connexion réussie");
-          // je passe la valeur de mon localStorage à "true"
-          localStorage.setItem("isLoggedIn", "true");
-          // je mets à jour le texte de mon bouton de connexion
-          updateLoginButton();
-          // je ferme ma modal
-          modal.style.display = "none";
-          // je vide les champs email et password
-          document.getElementById("loginEmail").value = "";
-          document.getElementById("loginPassword").value = "";
-          addEvent.style.display = "block";
-          toggleEvents();
+          return response.json();
         } else {
-          alert("Échec de la connexion");
+          // si la connexion échoue alors j'alerte l'utilisateur
+          if (response.status === 401) {
+            throw new Error("Identifiants incorrects. Veuillez réessayer.");
+          } 
+          else if (response.status === 429) {
+            throw new Error("Trop de tentive de connexion. Veuillez réessayer plus tard.");
+          }
+          else {
+            throw new Error("Échec de la connexion");
+          }
         }
+      })
+      .then(function (data) {
+        // si la connexion est réussie alors j'alerte l'utilisateur et je mets à jour le texte de mon bouton de connexion et je stocke l'userId dans mon localStorage
+        alert("Connexion réussie");
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("userId", data.userId);
+        updateLoginButton();
+        modal.style.display = "none";
+        document.getElementById("loginEmail").value = "";
+        document.getElementById("loginPassword").value = "";
       })
       .catch(function (error) {
         console.error("Error:", error);
-        alert("Une erreur s'est produite lors de la connexion");
+        alert(error.message);
       });
+  });
+
+  // si je clique en dehors de ma modal alors je la ferme (sauf si je clique sur le bouton de connexion ou sur l'icone de mode sombre)
+  document.addEventListener("click", function (event) {
+    if (
+      !modal.contains(event.target) &&
+      event.target !== loginBtn &&
+      event.target !== modeToggle &&
+      event.target !== icon
+    ) {
+      modal.style.display = "none";
+    }
   });
 
   // si je clique sur créer un compte dans ma modal alors j'envoie une requête POST à l'URL "http://localhost:3000/register"
   createAccountForm.addEventListener("submit", function (event) {
     // j'empêche le comportement par défaut du formulaire
     event.preventDefault();
-    
+
     // récupération des valeurs des champs email et password
+    var username = document.getElementById("usernameInput").value;
     var email = document.getElementById("emailInput").value;
     var password = document.getElementById("passwordInput").value;
-    
+
     // Regex pour vérifier le format de l'email
     var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -258,22 +178,25 @@ document.addEventListener("DOMContentLoaded", function () {
     var passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}$/;
 
     if (!emailRegex.test(email)) {
-        alert("Veuillez entrer une adresse email valide.");
-        return;
+      alert("Veuillez entrer une adresse email valide.");
+      return;
     }
-
+    
     if (!passwordRegex.test(password)) {
-        alert("Le mot de passe doit contenir au moins 8 caractères avec au moins un chiffre, une lettre majuscule, une lettre minuscule et un caractère spécial.");
-        return;
+      alert(
+        "Le mot de passe doit contenir au moins 8 caractères avec au moins un chiffre, une lettre majuscule, une lettre minuscule et un caractère spécial."
+      );
+      return;
     }
 
     var credentials = {
+      username: username,
       email: email,
       password: password,
     };
 
     // j'envoie une requête POST à l'URL "http://localhost:3000/register"
-    fetch("https://tp1-glo-3202-production-6087.up.railway.app/register", {
+    fetch("http://localhost:3000/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -287,6 +210,7 @@ document.addEventListener("DOMContentLoaded", function () {
           alert("Compte créé avec succès");
           // je ferme ma modal de création de compte
           createAccountModal.style.display = "none";
+          document.getElementById("usernameInput").value = "";
           document.getElementById("emailInput").value = "";
           document.getElementById("passwordInput").value = "";
         } else {
@@ -297,50 +221,5 @@ document.addEventListener("DOMContentLoaded", function () {
         console.error("Error:", error);
         alert("Une erreur s'est produite lors de la création du compte");
       });
-  });
-  
-  // si je clique sur la croix alors ma modal apparaît
-  addEvent.addEventListener("click", function () {
-    addTaskModal.style.display = "block";
-  });
-  
-  // fonction qui permet d'ajouter une tâche dans la base de données
-  addTaskForm.addEventListener("submit", function (event) {
-    event.preventDefault();
-
-    var taskName = document.getElementById("taskNameInput").value;
-    var taskStatus = document.getElementById("taskStatusInput").value;
-
-    var taskData = {
-      name: taskName,
-      status: taskStatus,
-    };
-    
-    // requete qui permet de créer un événement
-    fetch("https://tp1-glo-3202-production-6087.up.railway.app/event", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify(taskData),
-    })
-      .then(function (response) {
-        if (response.ok) {
-          alert("Événement créé avec succès");
-          document.getElementById("addTaskModal").style.display = "none";
-          toggleEvents()
-        } else {
-          alert("Échec de la création de l'événement");
-        }
-      })
-      .catch(function (error) {
-        console.error("Error:", error);
-        alert("Une erreur s'est produite lors de la création de l'événement");
-      });
-  });
-
-  informationBtn.addEventListener("click", function () {
-    alert("Connectez-vous afin de pouvoir avoir accès à la liste des événements et de pouvoir en ajouter (TodoList).");
   });
 });

@@ -4,6 +4,37 @@ const cors = require("cors");
 const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
 const uuid = require('uuid');
+const mongoose = require('mongoose');
+const rateLimit = require("express-rate-limit");
+
+const userSchema = new mongoose.Schema({
+  userId: Number,
+  username: String,
+  email: String,
+  password: String,
+  events: [
+    {
+      name: String,
+      status: String,
+    },
+  ],
+  score: Number,
+});
+
+const User = mongoose.model('User', userSchema);
+
+const uri = "mongodb+srv://theo:xRcGZ3KEbCMyJqNG@tp2.6cfyju4.mongodb.net/?retryWrites=true&w=majority&appName=tp2"
+
+async function connect() {
+  try {
+    await mongoose.connect(uri);
+    console.log("Connecté à la base de données MongoDB");
+  } catch (error) {
+    console.error("Erreur lors de la connexion à la base de données", error);
+  }
+}
+
+connect();
 
 const events = [];
 
@@ -13,10 +44,16 @@ const port = process.env.PORT || 3000;
 app.use(express.static("public"));
 app.use(express.json());
 app.use(cookieParser());
+
+app.use((req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store');
+  next();
+});
+
 // uniquement l'origine http://localhost:5500 est autorisée à faire des requêtes
 app.use(cors(
   {
-    origin: 'https://tp1-glo-3202-production-6087.up.railway.app',
+    origin: 'http://localhost:3000/',
     credentials: true
   }
 )
@@ -25,95 +62,60 @@ app.use(cors(
 // nombre de tours pour le hachage
 const saltRounds = 10;
 
+// Limite le nombre de tentatives de connexion à 5
+const loginLimiter = rateLimit({
+  windowMs: 3 * 60 * 1000, // 15 minutes
+  max: 5, // limite le nombre de tentatives de connexion à 5
+});
+
 // permet d'afficher mon frontend lorsque je vais sur le site
 app.get("/", (req, res) => {
 });
 
 // Création d'un compte
-app.post("/register", (req, res) => {
-  // récupération des données de la requête
-  const { email, password } = req.body;
+app.post("/register", async (req, res) => {
+  const { username, email, password } = req.body;
   
-  // hachage du mot de passe
-  bcrypt.hash(password, saltRounds, (err, hashedPassword) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).send("Erreur interne du serveur");
-    }
+  try {
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const lastUser = await User.findOne({}, {}, { sort: { 'userId': -1 } });
+    const newUserId = lastUser ? lastUser.userId + 1 : 1;
     
-    // lecture du fichier database.json
-    fs.readFile("database.json", "utf8", (err, data) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).send("Erreur interne du serveur");
-      }
-      
-      let database;
-      try {
-        // conversion du contenu du fichier en objet JavaScript
-        database = JSON.parse(data);
-      } catch (parseError) {
-        console.error(parseError);
-        database = [];
-      }
-      
-      // ajout du nouvel utilisateur à la base de données (fichier database.json)
-      database.push({ email, password: hashedPassword });
-      
-      // écriture de l'email et du mot de passe haché dans le fichier database.json
-      fs.writeFile("database.json", JSON.stringify(database), (err) => {
-        if (err) {
-          console.error(err);
-          return res.status(500).send("Erreur interne du serveur");
-        }
-        res.status(200).send("Compte créé avec succès");
-      });
-    });
-  });
+    // Création d'un utilisateur dans MongoDB
+    const user = new User({ userId: newUserId, username, email, password: hashedPassword, score: 0});
+    await user.save();
+    
+    res.status(200).send("Compte créé avec succès");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Erreur interne du serveur");
+  }
 });
 
 // Connexion à un compte (création d'un cookie)
-app.post("/login", (req, res) => {
+app.post("/login", loginLimiter, async (req, res) => {
   const { email, password } = req.body;
   
-  // lecture du fichier database.json
-  fs.readFile("database.json", "utf8", (err, data) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).send("Erreur interne du serveur");
-    }
-
-    let database;
-    try {
-      database = JSON.parse(data);
-    } catch (parseError) {
-      console.error(parseError);
-      return res.status(500).send("Erreur interne du serveur");
-    }
+  try {
+    const user = await User.findOne({ email: email });
     
-    // recherche de l'utilisateur dans la base de données
-    const user = database.find((user) => user.email === email);
     const randomValue = uuid.v4();
-
+    
     if (user) {
-      // comparaison du mot de passe haché avec le mot de passe fourni
-      bcrypt.compare(password, user.password, (err, result) => {
-        if (err) {
-          console.error(err);
-          return res.status(500).send("Erreur interne du serveur");
-        }
-        if (result) {
-          // création d'un cookie contenant une valeur aléatoire
-          res.cookie('userCookie', randomValue, { maxAge: 900000, httpOnly: true });
-          res.status(200).send("OK");
-        } else {
-          res.status(401).send("Pas autorisé");
-        }
-      });
+      const result = await bcrypt.compare(password, user.password);
+      if (result) {
+        res.cookie('userCookie', randomValue, { maxAge: 900000, httpOnly: true });
+        res.status(200).json({ message: "OK", userId: user.userId });
+      } else {
+        res.status(401).send("Pas autorisé");
+      }
     } else {
       res.status(401).send("Pas autorisé");
     }
-  });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Erreur interne du serveur");
+  }
 });
 
 // Déconnexion d'un compte (suppression du cookie)
@@ -128,6 +130,7 @@ app.get("/logout", (req, res) => {
   }
 });
 
+// Vérification de la présence du cookie
 app.get("/check-cookie", (req, res) => {
   if ('userCookie' in req.cookies) {
     res.status(200).send('Cookie présent');
@@ -137,109 +140,183 @@ app.get("/check-cookie", (req, res) => {
 });
 
 // route qui permet de créer un événement
-app.post("/event", (req, res) => {
+app.post("/event/:userId", async (req, res) => {
   const { name, status } = req.body;
-
-  const userCookie = req.cookies.userCookie;
+  const userId = req.params.userId;
   
-  if (!userCookie) {
-    return res.status(401).send("Non autorisé, aucun cookie trouvé");
+  // Vérification de la présence du cookie userCookie
+  if (!req.cookies.userCookie) {
+    return res.status(401).json({ success: false, message: 'Non autorisé - cookie manquant' });
   }
   
-  fs.readFile("database.json", "utf8", (err, data) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).send("Erreur interne du serveur");
-    }
-    
-    let database;
-    try {
-      database = JSON.parse(data);
-    } catch (parseError) {
-      console.error(parseError);
-      database = [];
-    }
+  // Vérification de la présence de l'userId
+  if (!userId) {
+    return res.status(401).send("Non autorisé, aucun userId trouvé");
+  }
 
-    database.push({ name, status : status });
+  try {
+    // Recherchez l'utilisateur dans la base de données par userId
+    const user = await User.findOne({ userId });
 
-    fs.writeFile("database.json", JSON.stringify(database), (err) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).send("Erreur interne du serveur");
-      }
-      res.status(200).send("Evénement créé avec succès");
-    });
-  });
+    if (user) {
+      // Ajoutez l'événement à la liste des événements de l'utilisateur
+      user.events.push({ name, status });
+      // Enregistrez les modifications dans la base de données
+      await user.save();
+      res.status(200).send("Événement créé avec succès");
+    } else {
+      res.status(401).send("Utilisateur non trouvé");
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Erreur interne du serveur");
+  }
 });
 
 // route qui permet de récupérer la liste des événements
-app.get("/events", (req, res) => {
-  const userCookie = req.cookies.userCookie;
+app.get("/events/:userId", async (req, res) => {
+  const userId = req.params.userId;
   
-  if (!userCookie) {
-    return res.status(401).send("Non autorisé, aucun cookie trouvé");
+  // Vérification de la présence du cookie userCookie
+  if (!req.cookies.userCookie) {
+    return res.status(401).json({ success: false, message: 'Non autorisé - cookie manquant' });
   }
-
-  fs.readFile("database.json", "utf8", (err, data) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).send("Erreur interne du serveur");
-    }
-    try {
-      const events = JSON.parse(data);
+  
+  // Vérification de la présence de l'userId
+  if (!userId) {
+      return res.status(401).send("Non autorisé, aucun userId trouvé");
+  }
+  
+  try {
+    // Recherchez l'utilisateur dans la base de données par userId
+      const user = await User.findOne({ userId });
       
-      // création d'un tableau contenant uniquement le nom et le statut de chaque événement
-      const eventData = events.map(event => ({ name: event.name, status: event.status }));
-      
-      res.status(200).json(eventData);
-    } catch (error) {
+      // Si l'utilisateur est trouvé, renvoyez la liste des événements
+      if (user) {
+          const eventData = user.events.map(event => ({ name: event.name, status: event.status }));
+          
+          res.status(200).json(eventData);
+      } else {
+          res.status(401).send("Utilisateur non trouvé");
+      }
+  } catch (error) {
       console.error("Error:", error);
       res.status(500).send("Erreur interne du serveur");
-    }
-  });
+  }
 });
 
 // route qui permet de mettre à jour le statut d'un événement
-app.put('/events/:eventName', (req, res) => {
+app.put('/events/:userId/:eventName', async (req, res) => {
+  const userId = req.params.userId;
   const eventName = req.params.eventName;
   const newStatus = req.body.status;
-  const userCookie = req.cookies.userCookie;
-  
-  if (!userCookie) {
-    return res.status(401).send("Non autorisé, aucun cookie trouvé");
+
+  // Vérification de la présence du cookie userCookie
+  if (!req.cookies.userCookie) {
+    return res.status(401).json({ success: false, message: 'Non autorisé - cookie manquant' });
   }
   
-  fs.readFile('database.json', (err, data) => {
-      if (err) {
-          console.error('Erreur lors de la lecture du fichier database.json', err);
-          return res.status(500).json({ error: 'Erreur serveur lors de la lecture de la base de données' });
-      }
-
-      try {
-          const eventData = JSON.parse(data);
-          // recherche de l'événement à mettre à jour
-          const eventToUpdate = eventData.find(event => event.name === eventName);
-
+  // Vérification de la présence de l'userId
+  if (!userId) {
+      return res.status(401).send("Non autorisé, aucun userId trouvé");
+  }
+  
+  try {
+    // Recherchez l'utilisateur dans la base de données par userId
+      const user = await User.findOne({ userId });
+      
+      if (user) {
+        // Recherchez l'événement à mettre à jour
+          const eventToUpdate = user.events.find(event => event.name === eventName);
+          
           if (eventToUpdate) {
+            // Mettez à jour le statut de l'événement
               eventToUpdate.status = newStatus;
-
-              fs.writeFile('database.json', JSON.stringify(eventData), (err) => {
-                  if (err) {
-                      console.error('Erreur lors de la mise à jour du fichier database.json', err);
-                      return res.status(500).json({ error: 'Erreur serveur lors de la mise à jour de l\'événement' });
-                  }
-                  res.json({ message: 'Statut de l\'événement mis à jour avec succès' });
-              });
+              // Enregistrez les modifications dans la base de données
+              await user.save();
+              res.json({ message: 'Statut de l\'événement mis à jour avec succès' });
           } else {
               return res.status(404).json({ error: 'Événement non trouvé' });
           }
-      } catch (error) {
-          console.error('Erreur lors de l\'analyse des données JSON', error);
-          return res.status(500).json({ error: 'Erreur serveur lors de la manipulation des données' });
+      } else {
+          res.status(401).send("Utilisateur non trouvé");
       }
-  });
+  } catch (error) {
+      console.error('Erreur lors de la mise à jour du statut de l\'événement', error);
+      res.status(500).json({ error: 'Erreur serveur lors de la mise à jour du statut de l\'événement' });
+  }
 });
 
+// route qui permet de sauvegarder le score d'un utilisateur
+app.post('/save/:userId', async (req, res) => {
+  const userIdFromParams = req.params.userId;
+  const score = req.body.score;
+
+  // Vérification de la présence du cookie userCookie
+  if (!req.cookies.userCookie) {
+    return res.status(401).json({ success: false, message: 'Non autorisé - cookie manquant' });
+  }
+  
+  // Vérification de la présence de l'userId
+  if (!userIdFromParams) {
+    return res.status(401).send("Non autorisé, aucun userId trouvé");
+  }
+
+  try {
+    // Recherchez l'utilisateur dans la base de données par userId
+    const user = await User.findOne({ userId: userIdFromParams });
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Utilisateur non trouvé' });
+    }
+
+    // Mettez à jour le score de l'utilisateur
+    user.score = score;
+    // Enregistrez les modifications dans la base de données
+    await user.save();
+
+    res.json({ success: true, message: 'Score enregistré avec succès' });
+  } catch (error) {
+    console.error('Erreur lors de l\'enregistrement du score:', error);
+    res.status(500).json({ success: false, message: 'Erreur lors de l\'enregistrement du score' });
+  }
+});
+
+// route qui permet de récupérer le score d'un utilisateur
+app.get('/get-score/:userId', async (req, res) => {
+  const userId = req.params.userId;
+
+  try {
+      // Recherchez l'utilisateur dans la base de données par son ID
+      const user = await User.findOne({ userId: userId });
+
+      if (!user) {
+          // L'utilisateur n'a pas été trouvé
+          return res.status(404).json({ error: 'Utilisateur non trouvé' });
+      }
+
+      // Renvoyez le score de l'utilisateur
+      res.json({ score: user.score });
+  } catch (error) {
+      console.error('Erreur lors de la récupération du score:', error);
+      res.status(500).json({ error: 'Erreur serveur lors de la récupération du score' });
+  }
+});
+
+// route qui permet de récupérer la liste des scores
+app.get('/get-scores', async (req, res) => {
+  try {
+    // Récupérer tous les utilisateurs avec leurs noms d'utilisateur et scores
+    const users = await User.find({}, 'username score');
+
+    // Retourner la liste des scores
+    const scores = users.map(user => ({ username: user.username, score: user.score }));
+    res.json(scores);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des scores:', error);
+    res.status(500).json({ error: 'Erreur lors de la récupération des scores' });
+  }
+});
 
 // Vérification de la connexion
 app.listen(port, () => {

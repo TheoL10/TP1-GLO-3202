@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TP1</title>
+    <title>TP2</title>
     <link rel="stylesheet" href="css/main.css">
     <script src="javascript/dark.js"></script>
     <script src="javascript/main.js"></script>
@@ -14,14 +14,16 @@
     <div class="navbar">
         <a href="#" id="loginBtn">Connexion</a>
         <a href="#" id="createAccountBtn">Créer un compte</a>
-        <a href="#" id="informationBtn">Information</a>
+        <a href="leaderboard.html">Tableau des scores</a>
+        <a href="events.html">Événements</a>
+        <a href="clicker.html">Clicker</a>
         <a href="#" id="modeToggle"><i id="icon-dark-mode" class="fas fa-sun"></i></a>
     </div>
     <!-- création d'une modal de connexion -->
     <div id="modal" class="modal">
         <h2>Connexion</h2>
         <form id="loginForm">
-            <input type="text" id="loginEmail" name="email" placeholder="Nom d'utilisateur" required>
+            <input type="text" id="loginEmail" name="email" placeholder="Email" required>
             <input type="password" id="loginPassword" name="password" placeholder="Mot de passe" required>
             <button type="submit" id="loginSubmit">Se connecter</button>
         </form>
@@ -30,26 +32,11 @@
     <div id="createAccountModal" class="modal">
         <h2>Créer un compte</h2>
         <form id="createAccountForm">
+            <input type="username" id="usernameInput" name="username" placeholder="Nom d'utilisateur" required>
             <input type="email" id="emailInput" name="email" placeholder="Adresse e-mail" required>
             <input type="password" id="passwordInput" name="password" placeholder="Mot de passe" required>
             <button type="submit">Créer le compte</button>
         </form>
     </div>
-    <!-- création d'une modal de création d'évènement -->
-    <span id="addEvent"><i class="fas fa-plus"></i></span>
-    <div id="addTaskModal" class="modal">
-        <h2>Ajouter une tâche</h2>
-        <form id="addTaskForm">
-            <input type="text" id="taskNameInput" name="taskName" placeholder="Nom de la tâche" required>
-            <select id="taskStatusInput" name="taskStatus" required>
-                <option value="todo">À faire</option>
-                <option value="inProgress">En cours</option>
-                <option value="completed">Terminé</option>
-            </select>
-            <button type="submit">Ajouter la tâche</button>
-        </form>
-    </div>
-    <!-- création d'une liste d'évènements -->
-    <ul id="eventsList"></ul>
 </body>
 </html>
