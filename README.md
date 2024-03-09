@@ -1,5 +1,4 @@
-# Nom de Votre Application
-- TP2
+# TP2
 
 ## Prérequis
 - Node.js
